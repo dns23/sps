@@ -1,0 +1,106 @@
+<html>
+<head>
+  <title>Basic Click Example</title>
+  <script type="text/javascript" src="../../lib/sps.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+  <script type="text/javascript">
+  // Create the global SPS instance.
+  var sps = new SPS_Manager();
+  
+  // List the public signals of this application
+  var publicSignals = {
+     CLICK_ME_HAS_BEEN_CLICKED: 0
+  };
+
+  // An example class that subscribes to a click, but manages its internal
+  // state to either handle or not handle the click event.
+  var FeedHandler = function(containerID) {
+     this.containerID = containerID;
+     var self = this;
+     var eventsHandledCount = 0;
+     var xPos = 0;
+     var yPos = 0;
+
+     this.handleClickEvent = function(eventData) {
+        // Update the model
+        eventsHandledCount++;
+        xPos = eventData.x;
+        yPos = eventData.y;
+
+        // Update the view
+        self.updateView(eventsHandledCount, xPos, yPos);  
+     };
+
+     this.getFeedDataDiv = function() {
+        return $("#" + self.containerID).children("#feed_data");
+     };
+
+     this.getSubscribeButton = function() {
+        return $("#" + self.containerID).find("#sub");
+     };
+
+     this.getUnsubscribeButton = function() {
+        return $("#" + self.containerID).find("#unsub");
+     };
+
+     this.subscribeToClick = function() {
+        sps.subscribe(publicSignals.CLICK_ME_HAS_BEEN_CLICKED, self.handleClickEvent);
+     };
+
+     this.unsubscribeToClick = function() {
+        sps.unsubscribe(publicSignals.CLICK_ME_HAS_BEEN_CLICKED, self.handleClickEvent);
+     };
+
+     this.updateView = function(count, x, y) {
+        self.getFeedDataDiv().html("Events Handled: " + count + "<br />" + 
+                                   "Last Click Position: " + x + ", " + y);
+     };
+
+     // Initialise the view
+     self.updateView(eventsHandledCount, xPos, yPos);
+
+     // Manage the subscibe to click
+     self.getSubscribeButton().click(function() {
+        self.subscribeToClick();
+     });
+
+     // Manage the unsubscibe to click
+     self.getUnsubscribeButton().click(function() {
+        self.unsubscribeToClick();
+     });
+  }
+  </script>
+  <style type="text/css">
+  .feedContainer {
+     float: left;
+     border: 1px solid #000000;
+     padding-right: 10px;
+  }
+  </style>
+</head>
+<body>
+  <div id="clicker">Click Me</div>
+  <div id="feed_one" class="feedContainer">
+     <button id="sub">Subscribe to click</button>
+     <button id="unsub">Unsubscribe to click</button>
+     <div id="feed_data"></div>
+  </div>
+  <div id="feed_two" class="feedContainer">
+     <button id="sub">Subscribe to click</button>
+     <button id="unsub">Unsubscribe to click</button>
+     <div id="feed_data"></div>
+  </div>
+
+  <script type="text/javascript">
+  // Publish a click event each time the click is clicked.
+  $("#clicker").click(function(e) {
+     sps.publish(publicSignals.CLICK_ME_HAS_BEEN_CLICKED,
+                    { x: e.clientX, y: e.clientY });
+  });
+
+  // Create two feed handlers.
+  var feedOneHandler = new FeedHandler("feed_one");
+  var feedOneHandler = new FeedHandler("feed_two");
+  </script>
+</body>
+</html>
