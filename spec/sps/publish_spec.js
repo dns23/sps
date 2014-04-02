@@ -35,14 +35,14 @@ describe("SPS Publish", function() {
          it("when " + testSigName + " is published then the " + testSigName + 
             " event should be received by all " + numberOfSubscribers + " handlers", function() {
             mockHandlerArray = []
-            for (var i = 0; i < 20; i++) {
+            for (var i = 0; i < numberOfSubscribers; i++) {
                var tmp = jasmine.createSpy('mockHandler' + i);
                mockHandlerArray.push(tmp);
                sps.subscribe(testSigName, tmp);
             }
  
             sps.publish(testSigName, mockEventData);
-            for (var i = 0; i < 20; i++) {
+            for (var i = 0; i < numberOfSubscribers; i++) {
                expect(mockHandlerArray[i]).toHaveBeenCalledWith(mockEventData);
             }
          });
