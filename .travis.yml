@@ -1,5 +1,4 @@
 language: python
 install:
   - "pip install jasmine"
-  - "jasmine-install"
 script: jasmine-ci --browser firefox
